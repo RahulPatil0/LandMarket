@@ -11,85 +11,96 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table
+@Table(name = "notification")
 public class Notification {
-	
-	@Id
-	@GeneratedValue
-	@Column(name="id")
-	private Integer id;
-	
-	@Column(name="is_read")
-	private String isRead;
-	
-	public User getUser() {
-		return user;
-	}
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    @Id
+    @GeneratedValue
+    @Column(name = "id")
+    private Integer id;
 
-	@Column(name="property_status")
-	private String propertyStatus;
-	
-	@ManyToOne
-	@JoinColumn(name="user_id", referencedColumnName = "id",nullable = false)
-	private User user;
-	
-	
-	public Integer getId() {
-		return id;
-	}
+    @Column(name = "is_read")
+    private String isRead;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Column(name = "property_status")
+    private String propertyStatus;
 
-	
-	public String getIsRead() {
-		return isRead;
-	}
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    private User user;
 
-	public void setIsRead(String isRead) {
-		this.isRead = isRead;
-	}
+    @ManyToOne
+    @JoinColumn(name = "owner_id", referencedColumnName = "id", nullable = false)
+    private User owner;
 
-	public String getPropertyStatus() {
-		return propertyStatus;
-	}
+    // Getters and Setters for all fields
 
-	public void setPropertyStatus(String propertyStatus) {
-		this.propertyStatus = propertyStatus;
-	}
-	
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, isRead, propertyStatus);
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Notification other = (Notification) obj;
-		return Objects.equals(id, other.id) && Objects.equals(isRead, other.isRead)
-				 && Objects.equals(propertyStatus, other.propertyStatus);
-				
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	@Override
-	public String toString() {
-		return "Notification [notificationId=" +id + ", isRead=" + isRead + ", propertyStatus=" + propertyStatus + "]";
-	}
+    public String getIsRead() {
+        return isRead;
+    }
 
+    public void setIsRead(String isRead) {
+        this.isRead = isRead;
+    }
 
+    public String getPropertyStatus() {
+        return propertyStatus;
+    }
+
+    public void setPropertyStatus(String propertyStatus) {
+        this.propertyStatus = propertyStatus;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    // Override equals and hashCode to include 'owner' field
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, isRead, propertyStatus, user, owner);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        Notification other = (Notification) obj;
+        return Objects.equals(id, other.id) &&
+               Objects.equals(isRead, other.isRead) &&
+               Objects.equals(propertyStatus, other.propertyStatus) &&
+               Objects.equals(user, other.user) &&
+               Objects.equals(owner, other.owner);
+    }
+
+    // Override toString method
+
+    @Override
+    public String toString() {
+        return "Notification [id=" + id + ", isRead=" + isRead + ", propertyStatus=" + propertyStatus +
+               ", user=" + user + ", owner=" + owner + "]";
+    }
 }
-	
-	
-	

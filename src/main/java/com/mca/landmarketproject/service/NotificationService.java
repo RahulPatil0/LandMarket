@@ -1,15 +1,13 @@
 package com.mca.landmarketproject.service;
 
-import com.mca.landmarketproject.dto.NotificationDto;
-import com.mca.landmarketproject.exception.LandMarketException;
 import com.mca.landmarketproject.model.Notification;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NotificationService {
-    List<NotificationDto> getAllNotifications() throws LandMarketException;
-   
-    String addNewNotification(Notification notification, Integer userId) throws LandMarketException;
-    
-   
+    List<Notification> findAll(); // Get all notifications
+    Optional<Notification> findById(Integer id); // Get a notification by ID
+    Notification save(Notification notification); // Create or update a notification
+    void deleteById(Integer id); // Delete a notification by ID
 }

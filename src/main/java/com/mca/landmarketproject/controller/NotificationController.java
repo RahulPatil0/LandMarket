@@ -1,61 +1,107 @@
-package com.mca.landmarketproject.controller;
 
+package com.mca.landmarketproject.controller;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mca.landmarketproject.dto.NotificationDto;
-import com.mca.landmarketproject.exception.LandMarketException;
 import com.mca.landmarketproject.model.Notification;
-import com.mca.landmarketproject.response.LandMarketRespones;
+import com.mca.landmarketproject.model.User;
 import com.mca.landmarketproject.service.NotificationService;
+import com.mca.landmarketproject.service.UserService;
 
 @RestController
-@RequestMapping(path = "/notification")
+@RequestMapping("/notifications")
 public class NotificationController {
 
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private UserService userService;
+
+    // Get all notifications
     @GetMapping
-    public ResponseEntity<LandMarketRespones> getAllNotifications() {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        String message = "";
-        try {
-            List<NotificationDto> listOfDto = notificationService.getAllNotifications();
-            status = HttpStatus.OK;
-            return ResponseEntity.ok(new LandMarketRespones(listOfDto, status));
-        } catch (LandMarketException exception) {
-            message = "Failed to retrieve notifications data: " + exception.getLocalizedMessage();
-        } catch (Exception exception) {
-            message = "Internal Server Error: " + exception.getLocalizedMessage();
-        }
-        return ResponseEntity.status(status).body(new LandMarketRespones(message, status));
+    public ResponseEntity<List<Notification>> getAllNotifications() {
+        List<Notification> notifications = notificationService.findAll();
+        return ResponseEntity.ok(notifications);
     }
 
-    @PostMapping("user-id/{userId}")
-    public ResponseEntity<LandMarketRespones> addNewNotification(@PathVariable(name = "userId") Integer userId,
-                                                                 @RequestBody Notification notification) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        String message = "";
-        try {
-            message = notificationService.addNewNotification(notification, userId);
-            status = HttpStatus.OK;
-        } catch (LandMarketException exception) {
-            message = "Failed to add notification: " + exception.getLocalizedMessage();
-        } catch (Exception exception) {
-            message = "Internal Server Error: " + exception.getLocalizedMessage();
-        }
-        return ResponseEntity.status(status).body(new LandMarketRespones(message, status));
+    // Get notification by id
+    @GetMapping("/{id}")
+    public ResponseEntity<Notification> getNotificationById(@PathVariable Integer id) {
+    	String message = " ";
+    	try {
+			
+    		Optional<Notification> notification = notificationService.findById(id);
+    		if (notification.isPresent()) {
+    			return ResponseEntity.ok(notification.get());
+    		} else {
+    			return ResponseEntity.notFound().build();
+    		}
+		} catch (Exception e) {
+			// TODO: handle exception
+			 message = e.getLocalizedMessage();
+		}
+    	return ResponseEntity.notFound().build();
     }
 
-   
+    // Create a new notification
+    @PostMapping
+    public ResponseEntity<Notification> createNotification(
+            @RequestParam Integer userId,
+            @RequestParam Integer ownerId,
+            @RequestParam String propertyStatus) {
+
+        Optional<User> user = userService.findById(userId);
+        Optional<User> owner = userService.findById(ownerId);
+
+        if (user.isPresent() && owner.isPresent()) {
+            Notification notification = new Notification();
+            notification.setUser(user.get());
+            notification.setOwner(owner.get());
+            notification.setPropertyStatus(propertyStatus);
+            notification.setIsRead("false"); // Default to unread
+
+            Notification savedNotification = notificationService.save(notification);
+            return ResponseEntity.ok(savedNotification);
+        } else {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    // Update notification (mark as read)
+    @PutMapping("/{id}/read")
+    public ResponseEntity<Notification> markAsRead(@PathVariable Integer id) {
+        Optional<Notification> notification = notificationService.findById(id);
+        if (notification.isPresent()) {
+            Notification updatedNotification = notification.get();
+            updatedNotification.setIsRead("true");
+            notificationService.save(updatedNotification);
+            return ResponseEntity.ok(updatedNotification);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Delete notification by id
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteNotification(@PathVariable Integer id) {
+        Optional<Notification> notification = notificationService.findById(id);
+        if (notification.isPresent()) {
+            notificationService.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

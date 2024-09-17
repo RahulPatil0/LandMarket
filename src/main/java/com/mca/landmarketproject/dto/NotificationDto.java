@@ -1,43 +1,66 @@
 package com.mca.landmarketproject.dto;
 
-public class NotificationDto {
-	private Integer notificationId;
-	private String isRead;
-	private String propertyStatus;
-	
-	private Integer userId;
+import java.io.Serializable;
 
-	public Integer getUserId() {
-		return userId;
-	}
+public class NotificationDto implements Serializable {
 
-	public void setUserId(Integer userId) {
-		this.userId = userId;
-	}
+    private static final long serialVersionUID = 1L;
 
-	public Integer getNotificationId() {
-		return notificationId;
+    private Integer notificationId;
+    private Boolean isRead; // Changed to Boolean for better representation
+    private String propertyStatus;
+    private Integer userId;
 
-	}
+    public NotificationDto() {
+        // Default constructor
+    }
 
-	public void setNotificationId(Integer notificationId) {
-		this.notificationId = notificationId;
-	}
+    public NotificationDto(Integer notificationId, Boolean isRead, String propertyStatus, Integer userId) {
+        this.notificationId = notificationId;
+        this.isRead = isRead;
+        this.propertyStatus = propertyStatus;
+        this.userId = userId;
+    }
 
-	public String getIsRead() {
-		return isRead;
-	}
+    public Integer getNotificationId() {
+        return notificationId;
+    }
 
-	public void setIsRead(String isRead) {
-		this.isRead = isRead;
-	}
+    public void setNotificationId(Integer notificationId) {
+        this.notificationId = notificationId;
+    }
 
-	public String getPropertyStatus() {
-		return propertyStatus;
-	}
+    public Boolean getIsRead() {
+        return isRead;
+    }
 
-	public void setPropertyStatus(String propertyStatus) {
-		this.propertyStatus = propertyStatus;
-	}
+    public void setIsRead(Boolean isRead) {
+        this.isRead = isRead;
+    }
 
+    public String getPropertyStatus() {
+        return propertyStatus;
+    }
+
+    public void setPropertyStatus(String propertyStatus) {
+        this.propertyStatus = propertyStatus;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    @Override
+    public String toString() {
+        return "NotificationDto{" +
+                "notificationId=" + notificationId +
+                ", isRead=" + isRead +
+                ", propertyStatus='" + propertyStatus + '\'' +
+                ", userId=" + userId +
+                '}';
+    }
 }

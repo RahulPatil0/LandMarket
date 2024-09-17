@@ -1,10 +1,19 @@
 package com.mca.landmarketproject.model;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -12,6 +21,7 @@ import jakarta.persistence.Table;
 @Table(name="users")
 public class User {
 	
+
 	@Id
 	@GeneratedValue
 	@Column(name="id")
@@ -23,40 +33,105 @@ public class User {
 	@Column(name="phone_number",nullable=false,unique=true)
 	private String phoneNumber;
 	
-	@Column(name="country")
-	private String country;
-	
-	@Column(name="state")
-	private String state;
-	
-	@Column(name="city")
-	private String city;
-	
-	@Column(name="area")
-	private String area;
-	
-	@Column(name="zip_code")
-	private String zipCode;
-	
 	@Column(name="first_name")
 	private String firstName;
 	
 	@Column(name="last_name")
 	private String lastName;
 	
-	@OneToMany(mappedBy="user")
-	private List<Review> reviews;
+	@Column(name = "password", length = 64, nullable = false)
+	private String password;
 	
-	@OneToMany(mappedBy="user")
-	private List<Property> properties;
+	 @Column(name = "is_google_user")
+	private Boolean isGoogleUser;
+	 
+	 private LocalDateTime createAt;
+	 
+	 private LocalDateTime lastModifiedAt;
+	 
+	 private Boolean isEmailVarified;
+	 
+	 private Boolean isPhoneNumberVarified;
+	 
+
+		@OneToMany(mappedBy="user")
+		private List<Review> reviews;
+		
+		@OneToMany(mappedBy="user")
+		private List<Property> properties;
+		
+		@OneToMany(mappedBy="user")
+		private List<Transaction> transactions;
+		
+		@OneToMany(mappedBy="buyer")
+		private List<UserRequest> buyerRequests;
+		
+		@OneToMany(mappedBy="owner")
+		private List<UserRequest> ownerRequests;
+		
+		
+		
+//		@OneToMany(mappedBy="user")
+//		private List<Notification> notifications;
+		@ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+		@JoinTable(name = "users_roles", 
+		joinColumns = {@JoinColumn(name = "user_id")}, 
+		inverseJoinColumns = {@JoinColumn(name = "role_id")})
+		private Set<Role> roles = new HashSet<>();
+		
+	 
 	
-	@OneToMany(mappedBy="user")
-	private List<Transaction> transactions;
+	public LocalDateTime getCreateAt() {
+		return createAt;
+	}
+
+	public void setCreateAt(LocalDateTime createAt) {
+		this.createAt = createAt;
+	}
+
+	public LocalDateTime getLastModifiedAt() {
+		return lastModifiedAt;
+	}
+
+	public void setLastModifiedAt(LocalDateTime lastModifiedAt) {
+		this.lastModifiedAt = lastModifiedAt;
+	}
+
+	public Boolean getIsEmailVarified() {
+		return isEmailVarified;
+	}
+
+	public void setIsEmailVarified(Boolean isEmailVarified) {
+		this.isEmailVarified = isEmailVarified;
+	}
+
+	public Boolean getIsPhoneNumberVarified() {
+		return isPhoneNumberVarified;
+	}
+
+	public void setIsPhoneNumberVarified(Boolean isPhoneNumberVarified) {
+		this.isPhoneNumberVarified = isPhoneNumberVarified;
+	}
+
+	public Boolean getIsGoogleUser() {
+		return isGoogleUser;
+	}
 	
-//	@OneToMany(mappedBy="user")
-//	private List<Notification> notifications;
+
+	public void setIsGoogleUser(Boolean isGoogleUser) {
+		this.isGoogleUser = isGoogleUser;
+	}
+
+	private boolean enabled;
 	
-	
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
 //	Getters Setters
 	public Integer getId() {
 		return id;
@@ -81,47 +156,8 @@ public class User {
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
-
-	public String getCountry() {
-		return country;
-	}
-
-	public void setCountry(String country) {
-		this.country = country;
-	}
-
-	public String getState() {
-		return state;
-	}
-
-	public void setState(String state) {
-		this.state = state;
-	}
-
-	public String getCity() {
-		return city;
-	}
-
-	public void setCity(String city) {
-		this.city = city;
-	}
-
-	public String getArea() {
-		return area;
-	}
-
-	public void setArea(String area) {
-		this.area = area;
-	}
 	
-	public String getZipCode() {
-		return zipCode;
-	}
 
-	public void setZipCode(String zipCode) {
-		this.zipCode = zipCode;
-	}
-	
 	public String getFirstName() {
 		return firstName;
 	}
@@ -137,12 +173,27 @@ public class User {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-
 	
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public Set<Role> getRoles() {
+		return roles;
+	}
+	
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
+	}
+
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, area, city, country, email, firstName, lastName, phoneNumber, state, zipCode);
+		return Objects.hash(id, email, firstName, lastName, phoneNumber);
 	}
 
 	@Override
@@ -154,17 +205,14 @@ public class User {
 		if (getClass() != obj.getClass())
 			return false;
 		User other = (User) obj;
-		return Objects.equals(id, other.id) && Objects.equals(area, other.area) && Objects.equals(city, other.city)
-				&& Objects.equals(country, other.country) && Objects.equals(email, other.email)
+		return Objects.equals(id, other.id)  && Objects.equals(email, other.email)
 				&& Objects.equals(firstName, other.firstName) && Objects.equals(lastName, other.lastName)
-				&& Objects.equals(phoneNumber, other.phoneNumber) && Objects.equals(state, other.state)
-				&& Objects.equals(zipCode, other.zipCode);
+				&& Objects.equals(phoneNumber, other.phoneNumber);
 	}
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", email=" + email + ", phoneNumber=" + phoneNumber + ", country=" + country
-				+ ", state=" + state + ", city=" + city + ", area=" + area + ", zipCode=" + zipCode + ", firstName="
+		return "User [id=" + id + ", email=" + email + ", phoneNumber=" + phoneNumber + ", firstName="
 				+ firstName + ", lastName=" + lastName + "]";
 	}
 
